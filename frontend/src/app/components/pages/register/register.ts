@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { InputFieldComponent } from '../../atoms/input-field/input-field';
 import { ButtonComponent } from '../../atoms/button/button';
@@ -7,7 +7,7 @@ import { ButtonComponent } from '../../atoms/button/button';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [InputFieldComponent, ButtonComponent],
+  imports: [InputFieldComponent, ButtonComponent, RouterLink],
   template: `
     <div class="auth-wrapper">
       <div class="auth-card">
