@@ -43,6 +43,8 @@ backend/
 │   │   │       │   └── mapper/
 │   │   │       └── client/
 │   │   ├── config/            # Configuration (DI, env, @Configuration)
+│   │   │   ├── CorsConfig.java      # CORS for frontend integration
+│   │   │   └── OpenApiConfig.java   # OpenAPI/Swagger documentation
 │   │   └── security/          # Security (JWT, filters, Spring Security)
 │   │
 │   ├── shared/                # Shared code
@@ -58,11 +60,18 @@ backend/
 └── pom.xml                     # Maven build with Spring Boot 3.5.14 parent
 ```
 
+### API Documentation (OpenAPI)
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
+- Annotations: `@Tag`, `@Operation`, `@ApiResponse` in controllers
+
 ### Key Principles
 - **Dependency Rule**: Dependencies only point inward (domain ← application ← infrastructure)
 - **Ports & Adapters**: Domain defines interfaces (ports), infrastructure provides implementations (adapters)
 - **Framework Independence**: Core domain logic has no Spring/Java EE dependencies
 - **Spring Boot**: Used only in infrastructure layer and main entry point for dependency injection and auto-configuration
+- **In-Memory Storage**: `ConcurrentHashMap` repository, no database required (data lost on restart)
+- **CORS Enabled**: Configured to allow `http://localhost:4200` (Angular dev server)
 
 ## Prerequisites
 
