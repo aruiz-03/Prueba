@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegisterComponent } from './register';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { signal } from '@angular/core';
+import { of, throwError } from 'rxjs';
 import { InputFieldComponent } from '../../atoms/input-field/input-field';
 import { ButtonComponent } from '../../atoms/button/button';
 
@@ -16,7 +15,7 @@ describe('RegisterComponent', () => {
 
   beforeEach(async () => {
     mockAuthService = {
-      register: vi.fn()
+      register: jest.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -27,8 +26,8 @@ describe('RegisterComponent', () => {
     }).compileComponents();
 
     router = TestBed.inject(Router);
-    vi.spyOn(router, 'navigate');
-    
+    jest.spyOn(router, 'navigate');
+
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -42,10 +41,10 @@ describe('RegisterComponent', () => {
     component.username.set('newuser');
     component.password.set('password');
     component.confirmPassword.set('password');
-    mockAuthService.register.mockReturnValue({ success: true, message: 'Registered' });
-    
+    mockAuthService.register.mockReturnValue(of({}));
+
     component.register();
-    
+
     expect(mockAuthService.register).toHaveBeenCalledWith({
       username: 'newuser',
       password: 'password',
@@ -57,11 +56,11 @@ describe('RegisterComponent', () => {
     component.username.set('newuser');
     component.password.set('password');
     component.confirmPassword.set('password');
-    mockAuthService.register.mockReturnValue({ success: true, message: 'Registered' });
-    
+    mockAuthService.register.mockReturnValue(of({}));
+
     component.register();
-    
-    expect(component.successMessage()).toBe('Registered');
+
+    expect(component.successMessage()).toBe('Registro exitoso');
     expect(component.errorMessage()).toBe('');
   });
 
@@ -69,10 +68,12 @@ describe('RegisterComponent', () => {
     component.username.set('newuser');
     component.password.set('password');
     component.confirmPassword.set('different');
-    mockAuthService.register.mockReturnValue({ success: false, message: 'Passwords do not match' });
-    
+    mockAuthService.register.mockReturnValue(
+      throwError(() => ({ error: { message: 'Passwords do not match' } }))
+    );
+
     component.register();
-    
+
     expect(component.errorMessage()).toBe('Passwords do not match');
     expect(component.successMessage()).toBe('');
   });

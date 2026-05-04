@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InputFieldComponent } from './input-field';
 
@@ -28,7 +27,7 @@ describe('InputFieldComponent', () => {
   });
 
   it('should emit valueChange on input', () => {
-    const valueChangeSpy = vi.spyOn(component.valueChange, 'emit');
+    const valueChangeSpy = jest.spyOn(component.valueChange, 'emit');
     const input = fixture.nativeElement.querySelector('input');
     input.value = 'test';
     input.dispatchEvent(new Event('input'));
@@ -36,7 +35,7 @@ describe('InputFieldComponent', () => {
   });
 
   it('should emit enterPress on Enter keydown', () => {
-    const enterPressSpy = vi.spyOn(component.enterPress, 'emit');
+    const enterPressSpy = jest.spyOn(component.enterPress, 'emit');
     const input = fixture.nativeElement.querySelector('input');
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(enterPressSpy).toHaveBeenCalled();

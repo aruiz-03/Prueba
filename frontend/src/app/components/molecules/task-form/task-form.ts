@@ -14,6 +14,11 @@ import { ButtonComponent } from '../../atoms/button/button';
         (valueChange)="onTitleChange($event)"
         (enterPress)="addTask()"
       />
+      <app-input-field
+        placeholder="Descripción (opcional)"
+        [value]="description()"
+        (valueChange)="onDescriptionChange($event)"
+      />
       <app-button variant="primary" (click)="addTask()">
         <span>+ Agregar</span>
       </app-button>
@@ -34,17 +39,23 @@ import { ButtonComponent } from '../../atoms/button/button';
 })
 export class TaskFormComponent {
   title = signal('');
-  taskAdded = output<string>();
+  description = signal('');
+  taskAdded = output<{title: string, description: string}>();
 
   onTitleChange(value: string): void {
     this.title.set(value);
   }
 
+  onDescriptionChange(value: string): void {
+    this.description.set(value);
+  }
+
   addTask(): void {
-    const trimmed = this.title().trim();
-    if (trimmed) {
-      this.taskAdded.emit(trimmed);
+    const trimmedTitle = this.title().trim();
+    if (trimmedTitle) {
+      this.taskAdded.emit({ title: trimmedTitle, description: this.description().trim() });
       this.title.set('');
+      this.description.set('');
     }
   }
 }
