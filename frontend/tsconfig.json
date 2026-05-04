@@ -13,6 +13,9 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
+    "types": [
+      "jest"
+    ],
     "module": "preserve"
   },
   "angularCompilerOptions": {
@@ -25,6 +28,9 @@
   "references": [
     {
       "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
     }
   ]
 }
