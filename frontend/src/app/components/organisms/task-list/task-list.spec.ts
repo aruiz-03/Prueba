@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TaskListComponent } from './task-list';
 import { Task } from '../../../models/task.model';
@@ -40,14 +39,14 @@ describe('TaskListComponent', () => {
   });
 
   it('should emit toggle when task toggle event is received', () => {
-    const toggleSpy = vi.spyOn(component.toggle, 'emit');
+    const toggleSpy = jest.spyOn(component.toggle, 'emit');
     const taskItem = fixture.nativeElement.querySelector('app-task-item');
     taskItem.dispatchEvent(new CustomEvent('toggle', { detail: '1' }));
     expect(toggleSpy).toHaveBeenCalled();
   });
 
   it('should emit delete when task delete event is received', () => {
-    const deleteSpy = vi.spyOn(component.delete, 'emit');
+    const deleteSpy = jest.spyOn(component.delete, 'emit');
     const taskItem = fixture.nativeElement.querySelector('app-task-item');
     taskItem.dispatchEvent(new CustomEvent('delete', { detail: '1' }));
     expect(deleteSpy).toHaveBeenCalled();

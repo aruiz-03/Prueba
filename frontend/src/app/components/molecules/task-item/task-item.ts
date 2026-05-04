@@ -1,63 +1,93 @@
 import { Component, input, output } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { CheckboxComponent } from '../../atoms/checkbox/checkbox';
-import { ButtonComponent } from '../../atoms/button/button';
 import { Task } from '../../../models/task.model';
+import { ButtonComponent } from '../../atoms/button/button';
 
 @Component({
   selector: 'app-task-item',
   standalone: true,
-  imports: [CheckboxComponent, ButtonComponent, DatePipe],
+  imports: [ButtonComponent],
   template: `
     <div class="task-item" [class.completed]="task().completed">
-      <app-checkbox
-        [checked]="task().completed"
-        (checkedChange)="onToggle()"
-      />
       <div class="task-content">
-        <span class="task-title">{{ task().title }}</span>
-        <span class="task-date">{{ task().createdAt | date:'shortDate' }}</span>
+        <button class="checkbox" (click)="toggle.emit(task().id)">
+          @if (task().completed) {
+            <span class="check">✓</span>
+          }
+        </button>
+        <div class="task-text">
+          <span class="title">{{ task().title }}</span>
+          @if (task().description) {
+            <span class="description">{{ task().description }}</span>
+          }
+        </div>
       </div>
-      <app-button variant="danger" (click)="onDelete()">Eliminar</app-button>
+      <app-button variant="danger" size="small" (click)="delete.emit(task().id)">
+        <span>✕</span>
+      </app-button>
     </div>
   `,
   styles: [`
     .task-item {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      padding: 16px;
+      padding: 12px 16px;
       background: var(--surface);
+      border-radius: var(--radius-md);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 12px;
       transition: all 0.2s ease;
-      box-shadow: var(--shadow);
     }
     .task-item:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
+      box-shadow: var(--shadow);
     }
-    .task-item.completed {
-      opacity: 0.7;
+    .task-item.completed .title {
+      text-decoration: line-through;
+      color: var(--text-secondary);
     }
     .task-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       flex: 1;
+    }
+    .checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .checkbox:hover {
+      border-color: var(--primary);
+    }
+    .completed .checkbox {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .check {
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .task-text {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-    .task-title {
+    .title {
       font-size: 15px;
-      font-weight: 500;
       color: var(--text-primary);
+      transition: all 0.2s ease;
     }
-    .task-date {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    .completed .task-title {
-      text-decoration: line-through;
+    .description {
+      font-size: 13px;
       color: var(--text-secondary);
     }
   `]
@@ -66,12 +96,4 @@ export class TaskItemComponent {
   task = input.required<Task>();
   toggle = output<string>();
   delete = output<string>();
-
-  onToggle(): void {
-    this.toggle.emit(this.task().id);
-  }
-
-  onDelete(): void {
-    this.delete.emit(this.task().id);
-  }
 }

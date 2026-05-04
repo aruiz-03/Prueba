@@ -150,19 +150,20 @@ export class RegisterComponent {
   successMessage = signal('');
 
   register(): void {
-    const result = this.authService.register({
+    this.authService.register({
       username: this.username(),
       password: this.password(),
       confirmPassword: this.confirmPassword()
+    }).subscribe({
+      next: () => {
+        this.successMessage.set('Registro exitoso');
+        this.errorMessage.set('');
+        setTimeout(() => this.router.navigate(['/login']), 1500);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.error?.message || 'Error al registrarse');
+        this.successMessage.set('');
+      }
     });
-
-    if (result.success) {
-      this.successMessage.set(result.message);
-      this.errorMessage.set('');
-      setTimeout(() => this.router.navigate(['/login']), 1500);
-    } else {
-      this.errorMessage.set(result.message);
-      this.successMessage.set('');
-    }
   }
 }

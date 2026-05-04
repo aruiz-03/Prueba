@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { signal } from '@angular/core';
+import { of, throwError } from 'rxjs';
 import { InputFieldComponent } from '../../atoms/input-field/input-field';
 import { ButtonComponent } from '../../atoms/button/button';
 
@@ -16,7 +15,7 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     mockAuthService = {
-      login: vi.fn()
+      login: jest.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -27,8 +26,8 @@ describe('LoginComponent', () => {
     }).compileComponents();
 
     router = TestBed.inject(Router);
-    vi.spyOn(router, 'navigate');
-    
+    jest.spyOn(router, 'navigate');
+
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -41,10 +40,10 @@ describe('LoginComponent', () => {
   it('should call authService.login on login', () => {
     component.username.set('testuser');
     component.password.set('password');
-    mockAuthService.login.mockReturnValue({ success: true, message: '' });
-    
+    mockAuthService.login.mockReturnValue(of({ id: '1', username: 'testuser' }));
+
     component.login();
-    
+
     expect(mockAuthService.login).toHaveBeenCalledWith({
       username: 'testuser',
       password: 'password'
@@ -54,20 +53,22 @@ describe('LoginComponent', () => {
   it('should navigate to home on successful login', () => {
     component.username.set('testuser');
     component.password.set('password');
-    mockAuthService.login.mockReturnValue({ success: true, message: '' });
-    
+    mockAuthService.login.mockReturnValue(of({ id: '1', username: 'testuser' }));
+
     component.login();
-    
+
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
 
   it('should set error message on failed login', () => {
     component.username.set('testuser');
     component.password.set('wrong');
-    mockAuthService.login.mockReturnValue({ success: false, message: 'Invalid credentials' });
-    
+    mockAuthService.login.mockReturnValue(
+      throwError(() => ({ error: { message: 'Invalid credentials' } }))
+    );
+
     component.login();
-    
+
     expect(component.errorMessage()).toBe('Invalid credentials');
     expect(router.navigate).not.toHaveBeenCalled();
   });

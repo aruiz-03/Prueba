@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TaskItemComponent } from './task-item';
 import { Task } from '../../../models/task.model';
+import { ButtonComponent } from '../../atoms/button/button';
 
 describe('TaskItemComponent', () => {
   let component: TaskItemComponent;
@@ -16,7 +16,7 @@ describe('TaskItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TaskItemComponent]
+      imports: [TaskItemComponent, ButtonComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(TaskItemComponent);
@@ -30,19 +30,19 @@ describe('TaskItemComponent', () => {
   });
 
   it('should display task title', () => {
-    const titleElement = fixture.nativeElement.querySelector('.task-title');
+    const titleElement = fixture.nativeElement.querySelector('.title');
     expect(titleElement.textContent).toContain('Test Task');
   });
 
-  it('should emit toggle with task id when onToggle is called', () => {
-    const toggleSpy = vi.spyOn(component.toggle, 'emit');
-    component.onToggle();
+  it('should emit toggle with task id when toggle is emitted', () => {
+    const toggleSpy = jest.spyOn(component.toggle, 'emit');
+    component.toggle.emit('1');
     expect(toggleSpy).toHaveBeenCalledWith('1');
   });
 
-  it('should emit delete with task id when onDelete is called', () => {
-    const deleteSpy = vi.spyOn(component.delete, 'emit');
-    component.onDelete();
+  it('should emit delete with task id when delete is emitted', () => {
+    const deleteSpy = jest.spyOn(component.delete, 'emit');
+    component.delete.emit('1');
     expect(deleteSpy).toHaveBeenCalledWith('1');
   });
 

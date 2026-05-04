@@ -30,7 +30,7 @@ import { ButtonComponent } from '../../atoms/button/button';
         </div>
       </header>
       <main class="home-content">
-        <app-task-form (taskAdded)="taskService.addTask($event)" />
+        <app-task-form (taskAdded)="onTaskAdded($event)" />
         <app-task-list
           [tasks]="taskService.tasks()"
           (toggle)="taskService.toggleTask($event)"
@@ -121,6 +121,10 @@ export class HomeComponent {
   taskService = inject(TaskService);
   authService = inject(AuthService);
   private router = inject(Router);
+
+  onTaskAdded(event: {title: string, description: string}): void {
+    this.taskService.addTask(event.title, event.description);
+  }
 
   logout(): void {
     this.authService.logout();
