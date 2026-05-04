@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TaskFormComponent } from './task-form';
 import { InputFieldComponent } from '../../atoms/input-field/input-field';
@@ -23,15 +22,15 @@ describe('TaskFormComponent', () => {
   });
 
   it('should emit taskAdded when addTask is called with valid title', () => {
-    const taskAddedSpy = vi.spyOn(component.taskAdded, 'emit');
+    const taskAddedSpy = jest.spyOn(component.taskAdded, 'emit');
     component.title.set('New Task');
     component.addTask();
-    expect(taskAddedSpy).toHaveBeenCalledWith('New Task');
+    expect(taskAddedSpy).toHaveBeenCalledWith({ title: 'New Task', description: '' });
     expect(component.title()).toBe('');
   });
 
   it('should not emit taskAdded when title is empty', () => {
-    const taskAddedSpy = vi.spyOn(component.taskAdded, 'emit');
+    const taskAddedSpy = jest.spyOn(component.taskAdded, 'emit');
     component.title.set('   ');
     component.addTask();
     expect(taskAddedSpy).not.toHaveBeenCalled();

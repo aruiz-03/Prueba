@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeComponent } from './home';
 import { AuthService } from '../../../services/auth.service';
@@ -16,16 +15,16 @@ describe('HomeComponent', () => {
   beforeEach(async () => {
     mockAuthService = {
       currentUser: signal(null),
-      logout: vi.fn()
+      logout: jest.fn()
     };
     mockTaskService = {
       tasks: signal([]),
-      addTask: vi.fn(),
-      toggleTask: vi.fn(),
-      deleteTask: vi.fn()
+      addTask: jest.fn(),
+      toggleTask: jest.fn(),
+      deleteTask: jest.fn()
     };
     mockRouter = {
-      navigate: vi.fn()
+      navigate: jest.fn()
     };
 
     await TestBed.configureTestingModule({
