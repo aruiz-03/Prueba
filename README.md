@@ -1,28 +1,29 @@
 # Prueba
 
-Monorepo project with an Angular 21 frontend application and a TypeScript backend following hexagonal architecture.
+Monorepo project with an Angular 21 frontend application and a Java 21 + Spring Boot backend following hexagonal architecture.
 
 ## Project Overview
 
-- **Monorepo Structure**: `frontend/` (Angular 21.2.7) and `backend/` (Java 21 + Spring Boot 3.5.14, hexagonal architecture)
+- **Monorepo Structure**: `frontend/` (Angular 21.2.0) and `backend/` (Java 21 + Spring Boot, hexagonal architecture)
 - **Frontend Component Architecture**: Atomic design pattern with components organized in `src/app/components/{atoms,molecules,organisms,pages}/`
 - **Frontend Entry Point**: `src/main.ts` → `src/app/app.ts` with routing configured in `app.routes.ts`
 - **Styling**: SCSS across all frontend components
 - **TypeScript**: Strict mode enabled in frontend
-- **Java**: Version 21 with Spring Boot 3.5.14 (latest stable, April 2026)
+- **Java**: Version 21 with Spring Boot (latest stable)
+- **Authentication**: User registration and login with JWT-free session management (localStorage + in-memory backend)
 
 ## Backend Architecture
 
-The backend follows **Hexagonal Architecture** (Ports and Adapters) with **Java 21** and **Spring Boot 3.5.14**, with clear separation of concerns:
+The backend follows **Hexagonal Architecture** (Ports and Adapters) with **Java 21** and **Spring Boot**, with clear separation of concerns:
 
 ```
 backend/
 ├── src/main/java/com/prueba/backend/
 │   ├── domain/                # Core business logic (no external dependencies)
-│   │   ├── model/             # Entities and Value Objects (e.g., Task record)
+│   │   ├── model/             # Entities and Value Objects (User, Task records)
 │   │   ├── service/           # Pure domain logic
 │   │   ├── port/              # Interfaces (contracts)
-│   │   │   ├── in/            # Input ports (use cases)
+│   │   │   ├── in/            # Input ports (use cases: Register, Login, Tasks)
 │   │   │   └── out/           # Output ports (repositories, external APIs)
 │   │
 │   ├── application/           # Use case orchestration
@@ -34,30 +35,23 @@ backend/
 │   │   ├── adapter/
 │   │   │   ├── in/            # Input adapters (REST, GraphQL, CLI)
 │   │   │   │   └── rest/
-│   │   │   │       ├── controller/  # @RestController (Spring MVC)
-│   │   │   │       └── route/
+│   │   │   │       └── controller/  # @RestController (AuthController, TaskController)
 │   │   │   └── out/           # Output adapters (DB, external APIs)
-│   │   │       ├── persistence/
-│   │   │       │   ├── entity/
-│   │   │       │   ├── repository/  # @Repository implementations
-│   │   │       │   └── mapper/
-│   │   │       └── client/
+│   │   │       └── persistence/
+│   │   │           ├── entity/
+│   │   │           ├── repository/  # @Repository implementations (InMemory)
+│   │   │           └── mapper/
 │   │   ├── config/            # Configuration (DI, env, @Configuration)
 │   │   │   ├── CorsConfig.java      # CORS for frontend integration
 │   │   │   └── OpenApiConfig.java   # OpenAPI/Swagger documentation
 │   │   └── security/          # Security (JWT, filters, Spring Security)
 │   │
-│   ├── shared/                # Shared code
-│   │   ├── utils/
-│   │   ├── exceptions/
-│   │   └── constants/
-│   │
 │   └── main/                  # Entry point (bootstrap)
 │       └── BackendApplication.java  # @SpringBootApplication
 │
 ├── src/main/resources/         # application.properties, static files
-├── src/test/java/              # Test sources
-└── pom.xml                     # Maven build with Spring Boot 3.5.14 parent
+├── src/test/java/              # Test sources (JUnit 5 + Mockito + AssertJ)
+└── pom.xml                     # Maven build
 ```
 
 ### API Documentation (OpenAPI)
@@ -75,8 +69,8 @@ backend/
 
 ## Prerequisites
 
-- Node.js (compatible with Angular 21 and npm@11.9.0)
-- npm (package manager, enforced via `angular.json` CLI configuration)
+- **Frontend**: Node.js (compatible with Angular 21 and npm@11.9.0)
+- **Backend**: Java 21 JDK (e.g., OpenJDK, Oracle JDK), Maven 3.5+
 
 ## Getting Started
 
@@ -109,19 +103,15 @@ npm run build
 
 #### Run Tests
 
-Execute unit tests using Vitest (test files use `*.spec.ts` extension):
+Execute unit tests using Jest (test files use `*.spec.ts` extension):
 
 ```bash
 cd frontend
-npm test
+ng test              # Run tests with watch mode
+ng test --no-watch   # Run tests once without watch
 ```
 
-### Backend (Java 21 + Spring Boot 3.5.14)
-
-#### Prerequisites
-
-- Java 21 JDK (e.g., OpenJDK, Oracle JDK)
-- Maven 3.5+ (or use Maven Wrapper)
+### Backend (Java 21 + Spring Boot)
 
 #### Build the Project
 
@@ -152,12 +142,47 @@ cd backend
 mvn test
 ```
 
+## API Endpoints (Backend)
+
+### Authentication
+- `POST /api/auth/register?username=...&password=...` — Register new user
+- `POST /api/auth/login?username=...&password=...` — Login user
+
+### Tasks (requires authentication)
+- `POST /api/tasks` — Create new task
+- `GET /api/tasks` — List all tasks
+- `GET /api/tasks/{id}` — Get task by ID
+- `DELETE /api/tasks/{id}` — Delete task
+
+## Testing
+
+### Frontend
+- **Runner**: Jest via `@angular-builders/jest`
+- **Config**: `angular.json` → `architect.test`
+- **Setup**: `test-setup.ts` → `jest-preset-angular/setup-jest`
+- **Pattern**: `*.spec.ts` next to source files
+- **Run**: `ng test` (NOT `npx jest` directly)
+
+#### Test Files (User Management)
+- `src/app/services/auth.service.spec.ts` — 6 tests (loadUser, login, logout, register)
+- `src/app/guards/auth.guard.spec.ts` — 2 tests (authenticated, unauthenticated)
+
+### Backend
+- **Runner**: JUnit 5 + Mockito + AssertJ
+- **Pattern**: `src/test/java/**/*Test.java`
+- **Run**: `mvn test`
+
+#### Test Files (User Management)
+- `src/test/java/.../application/usecase/RegisterUseCaseImplTest.java` — 2 tests
+- `src/test/java/.../application/usecase/LoginUseCaseImplTest.java` — 3 tests
+- `src/test/java/.../domain/model/UserTest.java` — 3 tests
+
 ## Key Conventions
 
 - **Package Manager**: npm (version 11.9.0, enforced in `angular.json`)
-- **Testing**: Vitest with Angular Analog plugin (`@analogjs/vite-plugin-angular`)
-- **Code Generation**: Angular CLI schematics; all generated files (components, services, guards, etc.) skip tests by default (configured in `angular.json`)
-- **Prettier**: Available as a dev dependency but no configuration file present
+- **Testing**: Jest (frontend), JUnit 5 + Mockito + AssertJ (backend)
+- **Code Generation**: Angular CLI schematics; all generated files skip tests by default (configured in `angular.json`)
+- **Angular Signals**: Used for state management in AuthService
 - **Build Budgets**: Production builds enforce 500kB initial bundle warning (1MB error), 4kB component style warning (8kB error)
 
 ## Architecture
@@ -167,23 +192,23 @@ mvn test
 - **Services**: Located in `src/app/services/` (includes `auth.service.ts`, `task.service.ts`)
 - **Guards**: Located in `src/app/guards/` (includes `auth.guard.ts`)
 - **Models**: Located in `src/app/models/` (includes `task.model.ts`, `user.model.ts`)
-- **Current State**: No backend or API mock configured yet
+- **Components**: Organized by atomic design in `src/app/components/{atoms,molecules,organisms,pages}/`
 
 ### Dependencies
 
-#### Production Dependencies
+#### Frontend Production Dependencies
 - `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` (^21.2.0)
 - `rxjs` (~7.8.0)
 - `tslib` (^2.3.0)
 
-#### Dev Dependencies
+#### Frontend Dev Dependencies
 - Angular CLI (^21.2.7), Angular Build (^21.2.7)
-- Vitest (^4.1.5), `@analogjs/vite-plugin-angular` (^2.5.0)
+- Jest (`@angular-builders/jest`, `jest-preset-angular`)
 - TypeScript (~5.9.2)
-- Prettier (^3.8.1)
 
 ## Additional Resources
 
 - Frontend-specific documentation: [frontend/README.md](frontend/README.md)
 - [Angular CLI Documentation](https://angular.dev/tools/cli)
-- [Vitest Documentation](https://vitest.dev/)
+- [Jest Documentation](https://jestjs.io/)
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
