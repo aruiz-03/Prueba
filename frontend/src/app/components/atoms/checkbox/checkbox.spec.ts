@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CheckboxComponent } from './checkbox';
 
@@ -33,7 +32,7 @@ describe('CheckboxComponent', () => {
   });
 
   it('should emit checkedChange on change', () => {
-    const checkedChangeSpy = vi.spyOn(component.checkedChange, 'emit');
+    const checkedChangeSpy = jest.spyOn(component.checkedChange, 'emit');
     const input = fixture.nativeElement.querySelector('input');
     input.click();
     expect(checkedChangeSpy).toHaveBeenCalledWith(true);

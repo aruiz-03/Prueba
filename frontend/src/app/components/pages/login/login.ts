@@ -121,15 +121,12 @@ export class LoginComponent {
   errorMessage = signal('');
 
   login(): void {
-    const result = this.authService.login({
+    this.authService.login({
       username: this.username(),
       password: this.password()
+    }).subscribe({
+      next: () => this.router.navigate(['/']),
+      error: (err) => this.errorMessage.set(err.error?.message || 'Error al iniciar sesión')
     });
-
-    if (result.success) {
-      this.router.navigate(['/']);
-    } else {
-      this.errorMessage.set(result.message);
-    }
   }
 }

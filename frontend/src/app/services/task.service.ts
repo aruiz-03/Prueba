@@ -1,50 +1,46 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 import { Task } from '../models/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
-  private readonly STORAGE_KEY = 'tasks';
-  private tasksSignal = signal<Task[]>(this.loadTasks());
+  private readonly API_URL = 'http://localhost:8080/api/tasks';
+  private tasksSignal = signal<Task[]>([]);
 
   tasks = computed(() => this.tasksSignal());
 
-  private loadTasks(): Task[] {
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return parsed.map((t: any) => ({
-        ...t,
-        createdAt: new Date(t.createdAt)
-      }));
-    }
-    return [];
+  constructor(private http: HttpClient) {
+    this.loadTasks();
   }
 
-  private saveTasks(tasks: Task[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
-    this.tasksSignal.set(tasks);
+  private loadTasks(): void {
+    this.http.get<Task[]>(this.API_URL).subscribe({
+      next: (tasks) => this.tasksSignal.set(tasks),
+      error: (err) => console.error('Error loading tasks:', err)
+    });
   }
 
-  addTask(title: string): void {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false,
-      createdAt: new Date()
-    };
-    const updated = [...this.tasksSignal(), newTask];
-    this.saveTasks(updated);
+  addTask(title: string, description: string): void {
+    this.http.post<Task>(this.API_URL, null, {
+      params: { title, description }
+    }).pipe(
+      tap(task => this.tasksSignal.update(tasks => [...tasks, task]))
+    ).subscribe({
+      error: (err) => console.error('Error creating task:', err)
+    });
   }
 
   toggleTask(id: string): void {
-    const updated = this.tasksSignal().map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    );
-    this.saveTasks(updated);
+    // Note: Backend doesn't have toggle endpoint yet
+    console.warn('Toggle not implemented in backend');
   }
 
   deleteTask(id: string): void {
-    const updated = this.tasksSignal().filter(task => task.id !== id);
-    this.saveTasks(updated);
+    this.http.delete<void>(`${this.API_URL}/${id}`).pipe(
+      tap(() => this.tasksSignal.update(tasks => tasks.filter(t => t.id !== id)))
+    ).subscribe({
+      error: (err) => console.error('Error deleting task:', err)
+    });
   }
 }
